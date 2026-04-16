@@ -1,4 +1,5 @@
 namn = "Mimi"
 print(namn)
-age = 28
-print(age)
+ålder = 20
+print(ålder)
+print(f"Hej jag heter {namn} och jag är {ålder} år gammalt!")
