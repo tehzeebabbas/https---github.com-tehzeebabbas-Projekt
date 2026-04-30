@@ -13,7 +13,7 @@ class Transaktion:
             return f"{self.datum} | {self.typ} | {self.belopp} kr | Motpart: {self.motpart}"
         return f"{self.datum} | {self.typ} | {self.belopp} kr"
 
-# Konto-klass
+#Konto-klass
 class Konto:
     def __init__(self, kontonummer):
         self.kontonummer = kontonummer
@@ -57,5 +57,22 @@ class Konto:
     def visa_transaktioner(self):
         for t in self.transaktioner:
             print(t)
+
+#Bank-klass
+class Bank:
+    def __init__(self):
+        self.konton = {}
+
+    def skapa_konto(self):
+        kontonummer = len(self.konton) + 1
+        konto = Konto(kontonummer)
+        self.konton[kontonummer] = konto
+        print(f"Konto skapat! Kontonummer: {kontonummer}")
+
+    def hämta_konto(self, kontonummer):
+        if kontonummer in self.konton:
+            return self.konton[kontonummer]
+        else:
+            raise ValueError("Kontot finns inte")
 
 
