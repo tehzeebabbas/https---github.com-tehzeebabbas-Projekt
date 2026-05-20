@@ -1,0 +1,12 @@
+{
+    "1234": {
+        "ägare": "Mimi",
+        "saldo": 60000.0,
+        "typ": "Konto"
+    },
+    "12345": {
+        "ägare": "Mimi",
+        "saldo": 0,
+        "typ": "Kreditkonto"
+    }
+}

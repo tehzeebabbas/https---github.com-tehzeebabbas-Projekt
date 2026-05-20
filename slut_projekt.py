@@ -1,3 +1,5 @@
+import requests
+import json
 from datetime import datetime
 
 #Klass för transaktioner
@@ -120,12 +122,78 @@ class Sparkonto(Konto):
             f"Saldo: {self.saldo} kr | Ränta: {self.ränta * 100}%"
         )
 
+#Arv från Konto
+class Kreditkonto(Konto):
+    def __init__(self, kontonummer, ägare):
+        super().__init__(kontonummer, ägare)
+
+        #Konto får gå minus
+        self.kreditgräns = -5000
+
+    def ta_ut(self, belopp):
+        if belopp <= 0:
+            raise ValueError("Belopp måste vara större än 0")
+
+        #Kreditkonto får gå minus
+        if self.saldo - belopp < self.kreditgräns:
+            raise ValueError("Du har nått kreditgränsen")
+
+        self.saldo -= belopp
+
+        self.transaktioner.append(Transaktion("Kredituttag", belopp))
+
+        print(f"Du tog ut {belopp} kr")
+        print(f"Nytt saldo: {self.saldo} kr")
+
+    #Polymorfism
+    def visa_info(self):
+        print(f"Kreditkonto | "
+            f"Ägare: {self.ägare} | "
+            f"Kontonummer: {self.kontonummer} | "
+            f"Saldo: {self.saldo} kr | "
+            f"Kreditgräns: {self.kreditgräns} kr"
+        )
+
+#Arv från konto
+class Premiumkonto(Konto):
+    def __init__(self, kontonummer, ägare):
+        super().__init__(kontonummer, ägare)
+
+        #Högre ränta
+        self.ränta = 0.05
+
+        #Bonus
+        self.bonus = 500
+
+    def lägg_till_bonus(self):
+
+        #Bonus läggs till
+        self.saldo += self.bonus
+
+        #Sparar bonus som transaktion
+        self.transaktioner.append(
+            Transaktion("Premiumbonus", self.bonus)
+        )
+        print(f"Bonus tillagd: {self.bonus} kr")
+        print(f"Nytt saldo: {self.saldo} kr")
+
+    #Polymorfism
+    def visa_info(self):
+        print(
+            f"Premiumkonto | "
+            f"Ägare: {self.ägare} | "
+            f"Kontonummer: {self.kontonummer} | "
+            f"Saldo: {self.saldo} kr | "
+            f"Ränta: {self.ränta * 100}% | "
+            f"Bonus: {self.bonus} kr"
+        )
+
 #Klass för bank
 class Bank:
     def __init__(self, namn):
         self.namn = namn
 
-        #Dictionary med alla konto
+        #Dictionary med alla konton
         self.konton = {}
 
     def skapa_konto(self):
@@ -133,62 +201,81 @@ class Bank:
         kontonummer = int(input("Vilket kontonummer vill du ha? "))
 
         if kontonummer in self.konton:
-            raise ValueError("Det kontonumret finns redan i denna bank")
-
-        print("Vilken typ av konto vill du skapa?")
+            raise ValueError("Kontonumret finns redan")
         print("1. Vanligt konto")
         print("2. Sparkonto")
+        print("3. Kreditkonto")
+        print("4. Premiumkonto")
 
         val = input("Välj kontotyp: ")
-
         if val == "1":
             konto = Konto(kontonummer, ägare)
+
         elif val == "2":
             konto = Sparkonto(kontonummer, ägare)
+
+        elif val == "3":
+            konto = Kreditkonto(kontonummer, ägare)
+
+        elif val == "4":
+            konto = Premiumkonto(kontonummer, ägare)
+
         else:
             raise ValueError("Ogiltig kontotyp")
 
+        #Sparar konto i dictionary
         self.konton[kontonummer] = konto
-        print(f"Konto skapat i {self.namn} för {ägare}! Kontonummer: {kontonummer}")
+        print(f"Konto skapat i {self.namn}")
 
     def hämta_konto(self, kontonummer):
         if kontonummer in self.konton:
             return self.konton[kontonummer]
+
         else:
-            raise ValueError("Kontot finns inte i denna bank")
+            raise ValueError("Kontot finns inte")
 
-    def överför_till_annan_bank(self, belopp, från_konto, mottagarbank, till_konto):
-        konto1 = self.hämta_konto(från_konto)
-        konto2 = mottagarbank.hämta_konto(till_konto)
+    #API från Riksbanken
+    def visa_riksbank_data(self):
+        url = "https://api.riksbank.se/swea/v1/CalendarDays/{from}"
+        try:
+            #Hämtar data från internet
+            response = requests.get(url)
 
-        if belopp <= 0:
-            raise ValueError("Belopp måste vara större än 0")
+            #Om allt fungerar
+            if response.status_code == 200:
 
-        if belopp > konto1.saldo:
-            raise ValueError("Otillräckligt saldo")
+                #Gör om JSON till Python-data
+                data = response.json()
+                print("\nData från Riksbanken:\n")
 
-        konto1.saldo -= belopp
-        konto2.saldo += belopp
+                #Skriver ut JSON snyggt
+                print(json.dumps(data, indent=4,ensure_ascii=False))
 
-        konto1.transaktioner.append(
-            Transaktion(
-                "Överföring till annan bank",
-                belopp,
-                f"{mottagarbank.namn} konto {till_konto}"
-            )
-        )
+            else:
+                print("Kunde inte hämta data")
 
-        konto2.transaktioner.append(
-            Transaktion(
-                "Överföring från annan bank",
-                belopp,
-                f"{self.namn} konto {från_konto}"
-            )
-        )
+        except Exception as e:
+            print("Fel vid API:", e)
 
-        print(f"Du överförde {belopp} kr från {self.namn} till {mottagarbank.namn}")
+    #Sparar konton som JSON
+    def spara_konton(self):
+        data = {}
 
+        #Går igenom alla konton
+        for nummer, konto in self.konton.items():
 
+            data[nummer] = {
+                "ägare": konto.ägare,
+                "saldo": konto.saldo,
+                "typ": konto.__class__.__name__
+            }
+
+        #Skapar JSON-fil
+        with open("konton.json", "w", encoding="utf-8") as fil:
+            json.dump(data, fil, indent=4, ensure_ascii=False)
+        print("Konton sparade i JSON-fil")
+
+#Funktion för att välja bank
 def välj_bank(banker):
     print("\n--- VÄLJ BANK ---")
     print("1. Nordea")
@@ -196,12 +283,11 @@ def välj_bank(banker):
     print("3. SEB")
 
     val = input("Välj bank: ")
-
     if val in banker:
         return banker[val]
+
     else:
         raise ValueError("Ogiltig bank")
-
 
 def meny():
     banker = {
@@ -214,25 +300,25 @@ def meny():
     print(f"Du använder nu banken: {bank.namn}")
 
     while True:
-        print(f"\n--- BANKSYSTEM: {bank.namn} ---")
+        print(f"\nBANKSYSTEM: {bank.namn}")
         print("1. Skapa konto")
         print("2. Sätt in pengar")
         print("3. Ta ut pengar")
-        print("4. Överför pengar inom samma bank")
+        print("4. Överför pengar")
         print("5. Visa saldo")
         print("6. Visa transaktioner")
-        print("7. Lägg till ränta på sparkonto")
+        print("7. Lägg till ränta")
         print("8. Visa kontoinfo")
-        print("9. Byt bank")
-        print("10. Överför pengar till annan bank")
-        print("11. Avsluta")
+        print("9. Visa Riksbank API-data")
+        print("10. Spara konton som JSON")
+        print("11. Byt bank")
+        print("12. Avsluta")
 
         val = input("Välj: ").strip()
-
         try:
             if val == "1":
                 bank.skapa_konto()
-
+            
             elif val == "2":
                 nr = int(input("Kontonummer: "))
                 belopp = float(input("Belopp: "))
@@ -246,20 +332,16 @@ def meny():
                 konto.ta_ut(belopp)
 
             elif val == "4":
-                från = int(input(f"Från konto i {bank.namn}: "))
-                till = int(input(f"Till konto i {bank.namn}: "))
-                belopp = float(input("Belopp: "))
-
+                från = int(input("Från konto: "))
+                till = int(input("Till konto: "))
+                belopp = float(input("Belopp: "))   
                 konto1 = bank.hämta_konto(från)
                 konto2 = bank.hämta_konto(till)
-
                 konto1.överför(belopp, konto2)
 
             elif val == "5":
                 nr = int(input("Kontonummer: "))
                 konto = bank.hämta_konto(nr)
-                print(f"Ägare: {konto.ägare}")
-                print(f"Bank: {bank.namn}")
                 print(f"Saldo: {konto.saldo} kr")
 
             elif val == "6":
@@ -273,38 +355,36 @@ def meny():
 
                 if isinstance(konto, Sparkonto):
                     konto.lägg_till_ränta()
+
                 else:
-                    print("Det här är inte ett sparkonto.")
+                    print("Det här är inte ett sparkonto")
 
             elif val == "8":
                 nr = int(input("Kontonummer: "))
                 konto = bank.hämta_konto(nr)
-                print(f"Bank: {bank.namn}")
                 konto.visa_info()
 
             elif val == "9":
-                bank = välj_bank(banker)
-                print(f"Du använder nu banken: {bank.namn}")
+                bank.visa_riksbank_data()
 
             elif val == "10":
-                print("Välj mottagarbank:")
-                mottagarbank = välj_bank(banker)
-
-                från = int(input(f"Från konto i {bank.namn}: "))
-                till = int(input(f"Till konto i {mottagarbank.namn}: "))
-                belopp = float(input("Belopp: "))
-
-                bank.överför_till_annan_bank(belopp, från, mottagarbank, till)
+                bank.spara_konton()
 
             elif val == "11":
+                bank = välj_bank(banker)
+
+            elif val == "12":
                 print("Hej då!")
                 break
 
             else:
                 print("Ogiltigt val")
 
+        except ValueError as e:
+            print("ValueError:", e)
+
         except Exception as e:
             print("Fel:", e)
 
-
+#Startar programmet
 meny()
