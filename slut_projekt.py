@@ -1,5 +1,6 @@
 from datetime import datetime
 
+#Klass för transaktioner
 class Transaktion:
     def __init__(self, typ, belopp, motpart=None):
         self.typ = typ
@@ -12,18 +13,24 @@ class Transaktion:
             return f"{self.datum} | {self.typ} | {self.belopp} kr | Motpart: {self.motpart}"
         return f"{self.datum} | {self.typ} | {self.belopp} kr"
 
+#Grundklass för konto
 class Konto:
     def __init__(self, kontonummer, ägare):
         self.kontonummer = kontonummer
         self.ägare = ägare
         self.saldo = 0
+
+        #Lista med alla transaktioner
         self.transaktioner = []
 
     def sätt_in(self, belopp):
         if belopp <= 0:
             raise ValueError("Belopp måste vara större än 0")
-
+           
+        #Lägger till pengar på konto
         self.saldo += belopp
+
+        #Sparar transaktionen
         self.transaktioner.append(Transaktion("Insättning", belopp))
         print(f"Du satte in {belopp} kr. Nytt saldo: {self.saldo} kr")
 
@@ -34,7 +41,10 @@ class Konto:
         if belopp > self.saldo:
             raise ValueError("Otillräckligt saldo")
 
+        #Tar ut pengar
         self.saldo -= belopp
+
+        #Sparar transaktionen
         self.transaktioner.append(Transaktion("Uttag", belopp))
         print(f"Du har tagit ut {belopp} kr. Nytt saldo: {self.saldo} kr")
 
@@ -45,13 +55,18 @@ class Konto:
         if belopp > self.saldo:
             raise ValueError("Otillräckligt saldo")
 
+        #Tar pengar från första konto
         self.saldo -= belopp
-        annat_konto.saldo += belopp
 
+        #Lägger pengar på andra konto
+        annat_konto.saldo += belopp
+ 
+        #Sparar transaktion på konto 1
         self.transaktioner.append(
             Transaktion("Överföring ut", belopp, annat_konto.kontonummer)
         )
 
+        #Sparar transaktion på konto 2
         annat_konto.transaktioner.append(
             Transaktion("Överföring in", belopp, self.kontonummer)
         )
@@ -66,22 +81,30 @@ class Konto:
             for t in self.transaktioner:
                 print(t)
 
+    #Polymorfism, samma metoed i sparkonton okcså men det fungerar på olika sätt
     def visa_info(self):
         print(
             f"Vanligt konto | Ägare: {self.ägare} | "
             f"Kontonummer: {self.kontonummer} | Saldo: {self.saldo} kr"
         )
 
-
+#Arv från konto
 class Sparkonto(Konto):
     def __init__(self, kontonummer, ägare):
         super().__init__(kontonummer, ägare)
+
+        #Ränta
         self.ränta = 0.02
 
     def lägg_till_ränta(self):
+
+        #Ränta beräknas
         ränta_belopp = self.saldo * self.ränta
+
+        #Ränta läggs till på saldo
         self.saldo += ränta_belopp
 
+        #Sparar transaktion
         self.transaktioner.append(
             Transaktion("Ränta", ränta_belopp)
         )
@@ -89,6 +112,7 @@ class Sparkonto(Konto):
         print(f"Ränta tillagd: {ränta_belopp} kr")
         print(f"Nytt saldo: {self.saldo} kr")
 
+    #Polymorfism, visar bara sparkonton's information
     def visa_info(self):
         print(
             f"Sparkonto | Ägare: {self.ägare} | "
@@ -96,10 +120,12 @@ class Sparkonto(Konto):
             f"Saldo: {self.saldo} kr | Ränta: {self.ränta * 100}%"
         )
 
-
+#Klass för bank
 class Bank:
     def __init__(self, namn):
         self.namn = namn
+
+        #Dictionary med alla konto
         self.konton = {}
 
     def skapa_konto(self):
