@@ -319,7 +319,7 @@ def meny():
         print("5. Visa saldo")
         print("6. Visa transaktioner")
         print("7. Lägg till ränta på sparkonto")
-        print("8. Lägg till ränta på premiumkonto")
+        print("8. Lägg till ränta och bonus på premiumkonto")
         print("9. Visa kontoinfo")
         print("10. Visa Riksbank API-data")
         print("11. Spara konton som JSON")
@@ -376,6 +376,7 @@ def meny():
                 konto = bank.hämta_konto(nr)
 
                 if isinstance(konto, Premiumkonto):
+                    konto.lägg_till_ränta()
                     konto.lägg_till_bonus()
 
                 else:
