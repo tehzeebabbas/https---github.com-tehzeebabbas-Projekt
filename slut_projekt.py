@@ -162,6 +162,17 @@ class Premiumkonto(Konto):
         #Högre ränta
         self.ränta = 0.05
 
+    def lägg_till_ränta(self):
+
+        ränta_belopp = self.saldo * self.ränta
+        self.saldo += ränta_belopp
+
+        self.transaktioner.append(
+        Transaktion("Premiumränta", ränta_belopp))
+       
+        print(f"Premiumränta tillagd: {ränta_belopp} kr")
+        print(f"Nytt saldo: {self.saldo} kr")
+
         #Bonus
         self.bonus = 500
 
@@ -307,12 +318,13 @@ def meny():
         print("4. Överför pengar")
         print("5. Visa saldo")
         print("6. Visa transaktioner")
-        print("7. Lägg till ränta")
-        print("8. Visa kontoinfo")
-        print("9. Visa Riksbank API-data")
-        print("10. Spara konton som JSON")
-        print("11. Byt bank")
-        print("12. Avsluta")
+        print("7. Lägg till ränta på sparkonto")
+        print("8. Lägg till ränta på premiumkonto")
+        print("9. Visa kontoinfo")
+        print("10. Visa Riksbank API-data")
+        print("11. Spara konton som JSON")
+        print("12. Byt bank")
+        print("13. Avsluta")
 
         val = input("Välj: ").strip()
         try:
@@ -360,6 +372,16 @@ def meny():
                     print("Det här är inte ett sparkonto")
 
             elif val == "8":
+                nr = int(input("Kontonummer: "))
+                konto = bank.hämta_konto(nr)
+
+                if isinstance(konto, Premiumkonto):
+                    konto.lägg_till_bonus()
+
+                else:
+                    print("Det här är inte ett premiumkonto")
+           
+            elif val == "9":
                 nr = int(input("Kontonummer: "))
                 konto = bank.hämta_konto(nr)
                 konto.visa_info()
