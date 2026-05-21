@@ -207,6 +207,8 @@ class Bank:
         #Dictionary med alla konton
         self.konton = {}
 
+        self.ladda_konton()
+
     def skapa_konto(self):
         ägare = input("Vad heter kontoinnehavaren? ")
         kontonummer = int(input("Vilket kontonummer vill du ha? "))
@@ -289,6 +291,22 @@ class Bank:
             json.dump(data, fil, indent=4, ensure_ascii=False)
         print("Konton sparade i JSON-fil")
 
+    def ladda_konton(self):
+        try:
+          with open("konton.json", "r", encoding="utf-8") as fil:
+            data = json.load(fil)
+
+          for nummer, info in data.items():
+            konto = Konto(int(nummer), info["ägare"])
+            konto.saldo = info["saldo"]
+
+            self.konton[int(nummer)] = konto
+
+          print("Konton laddade från fil")
+
+        except FileNotFoundError:
+         print("Ingen sparad fil hittades")
+ 
 #Funktion för att välja bank
 def välj_bank(banker):
     print("\n--- VÄLJ BANK ---")
