@@ -390,16 +390,16 @@ def meny():
                 konto = bank.hämta_konto(nr)
                 konto.visa_info()
 
-            elif val == "9":
+            elif val == "10":
                 bank.visa_riksbank_data()
 
-            elif val == "10":
+            elif val == "11":
                 bank.spara_konton()
 
-            elif val == "11":
+            elif val == "12":
                 bank = välj_bank(banker)
 
-            elif val == "12":
+            elif val == "13":
                 print("Hej då!")
                 break
 

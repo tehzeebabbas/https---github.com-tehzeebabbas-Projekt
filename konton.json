@@ -1,7 +1,7 @@
 {
-    "12": {
-        "ägare": "mi",
-        "saldo": 710.0,
-        "typ": "Premiumkonto"
+    "1": {
+        "ägare": "m",
+        "saldo": -200.0,
+        "typ": "Kreditkonto"
     }
 }
