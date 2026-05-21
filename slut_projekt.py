@@ -293,19 +293,30 @@ class Bank:
 
     def ladda_konton(self):
         try:
-          with open("konton.json", "r", encoding="utf-8") as fil:
-            data = json.load(fil)
+            with open("konton.json", "r", encoding="utf-8") as fil:
+               data = json.load(fil)
 
-          for nummer, info in data.items():
-            konto = Konto(int(nummer), info["ägare"])
-            konto.saldo = info["saldo"]
+            for nummer, info in data.items():
 
-            self.konton[int(nummer)] = konto
+                if info["typ"] == "Premiumkonto":
+                   konto = Premiumkonto(int(nummer), info["ägare"])
 
-          print("Konton laddade från fil")
+                elif info["typ"] == "Sparkonto":
+                   konto = Sparkonto(int(nummer), info["ägare"])
+
+                elif info["typ"] == "Kreditkonto":
+                   konto = Kreditkonto(int(nummer), info["ägare"])
+
+                else:
+                   konto = Konto(int(nummer), info["ägare"])
+
+                konto.saldo = info["saldo"]
+                self.konton[int(nummer)] = konto
+
+            print("Konton laddade korrekt")
 
         except FileNotFoundError:
-         print("Ingen sparad fil hittades")
+            print("Ingen sparad fil hittades")
  
 #Funktion för att välja bank
 def välj_bank(banker):

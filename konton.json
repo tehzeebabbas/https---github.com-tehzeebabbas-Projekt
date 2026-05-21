@@ -1,7 +1,12 @@
 {
     "12": {
         "ägare": "mi",
-        "saldo": -300.0,
-        "typ": "Kreditkonto"
+        "saldo": -100.0,
+        "typ": "Konto"
+    },
+    "12345": {
+        "ägare": "Li",
+        "saldo": 800.0,
+        "typ": "Premiumkonto"
     }
 }
