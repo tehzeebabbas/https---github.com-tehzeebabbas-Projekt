@@ -162,6 +162,9 @@ class Premiumkonto(Konto):
         #Högre ränta
         self.ränta = 0.05
 
+        #Bonus
+        self.bonus = 500
+
     def lägg_till_ränta(self):
 
         ränta_belopp = self.saldo * self.ränta
@@ -172,12 +175,6 @@ class Premiumkonto(Konto):
        
         print(f"Premiumränta tillagd: {ränta_belopp} kr")
         print(f"Nytt saldo: {self.saldo} kr")
-
-        #Bonus
-        self.bonus = 500
-
-        #Bonus läggs till
-        self.saldo += self.bonus
 
     def lägg_till_bonus(self):
 
