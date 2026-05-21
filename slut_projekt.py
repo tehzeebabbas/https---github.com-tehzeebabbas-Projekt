@@ -176,6 +176,9 @@ class Premiumkonto(Konto):
         #Bonus
         self.bonus = 500
 
+        #Bonus läggs till
+        self.saldo += self.bonus
+
     def lägg_till_bonus(self):
 
         #Bonus läggs till
