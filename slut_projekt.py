@@ -247,7 +247,10 @@ class Bank:
 
     #API från Riksbanken
     def visa_riksbank_data(self):
-        url = "https://api.riksbank.se/swea/v1/CalendarDays/{from}"
+       
+        datum = input("Skriv datum (ÅÅÅÅ-MM-DD): ")
+
+        url = f"https://api.riksbank.se/swea/v1/CalendarDays/{datum}"
         try:
             #Hämtar data från internet
             response = requests.get(url)
