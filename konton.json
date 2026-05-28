@@ -8,5 +8,10 @@
         "ägare": "Li",
         "saldo": 800.0,
         "typ": "Premiumkonto"
+    },
+    "1234567": {
+        "ägare": "Lina",
+        "saldo": -500.0,
+        "typ": "Kreditkonto"
     }
 }

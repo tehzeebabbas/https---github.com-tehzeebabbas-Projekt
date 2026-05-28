@@ -83,7 +83,7 @@ class Konto:
             for t in self.transaktioner:
                 print(t)
 
-    #Polymorfism, samma metoed i sparkonton okcså men det fungerar på olika sätt
+    #Polymorfism, samma metod finns i andra klaser men det fungerar på olika sätt
     def visa_info(self):
         print(
             f"Vanligt konto | Ägare: {self.ägare} | "
